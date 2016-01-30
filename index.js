@@ -2,7 +2,6 @@
 
 const URI = require('urijs');
 const request = require('request-promise');
-const get = request.get;
 
 
 class Putio {
@@ -15,15 +14,27 @@ class Putio {
     return this;
   }
 
+  get(url, query) {
+    query = query || {};
+    console.log('GET', url, query);
+    query.oauth_token = this.token;
+    url = URI(url).query(query).toString();
+    return request.get(url).then(JSON.parse);
+  }
+
   accountInfo(){
-    var uri = apiURI('/v2/account/info',{oauth_token:this.token});
-    console.log('GET', uri);
-    return get(uri);
+    return this.get(apiURI('/v2/account/info'));
   }
 
   addTransfer(magnetLink){
-    return post(apiURI('/v2/transfers/add', {url: magnetLink})).then(function(response){
+    return this.post(apiURI('/v2/transfers/add'), {url: magnetLink}).then(function(response){
       return response.transfer;
+    });
+  }
+
+  transfers(){
+    return this.get(apiURI('/v2/transfers/list')).then(function(response){
+      return response.transfers;
     });
   }
 }

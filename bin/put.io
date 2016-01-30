@@ -5,22 +5,23 @@
 let Putio = require('../index.js');
 let minimist = require('minimist');
 
-let usage = function(){
+let usage = () => {
   console.log('put.io command [options]');
 };
 
-let putio = function(){
+let putio = () => {
   let _putio = new Putio('3GJXYZBR');
-  putio = function(){ return _putio };
+  putio = () => { return _putio };
   return _putio;
 };
 
 let CLI = {
   info: (options) => {
     console.log('INFO:', options);
-    putio().accountInfo().then(function(response){
-      console.log(response);
-    });
+    putio().accountInfo().then(console.dir);
+  },
+  transfers: () => {
+    putio().transfers().then(console.dir);
   }
 }
 
