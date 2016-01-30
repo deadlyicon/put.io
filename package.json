@@ -1,0 +1,19 @@
+{
+  "name": "put.io",
+  "version": "1.0.0",
+  "description": "put.io api",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "bin" : {
+    "put.io" : "./bin/put.io"
+  },
+  "author": "Jared Grippe",
+  "license": "ISC",
+  "dependencies": {
+    "request-promise": "^2.0.0",
+    "urijs": "^1.17.0"
+  },
+  "devDependencies": {}
+}
