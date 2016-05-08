@@ -3,7 +3,6 @@
 const URI = require('urijs');
 const request = require('request-promise');
 
-
 class Putio {
   constructor(token) {
     this.setToken(token);
@@ -41,14 +40,12 @@ class Putio {
 
 module.exports = Putio;
 
-
 const uri = (endpoint, path, query) => {
   return URI(endpoint).query(query||{}).path(path||'/').toString();
 };
 
-
 const ENDPOINT = 'https://put.io';
-const baseUri = (path, query) => {
+const baseURI = (path, query) => {
   return uri(ENDPOINT, path, query);
 };
 
