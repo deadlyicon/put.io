@@ -54,7 +54,7 @@ export default class Putio {
   }
 
   transfers(){
-    return this.get(apiURI('/v2/transfers/list')).then(function(response){
+    return this.get(apiURI('/v2/transfers/list')).map( response => {
       return response.transfers;
     });
   }
