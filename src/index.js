@@ -9,6 +9,7 @@ export default class Putio {
     this.redirectURI   = options.redirectURI;
     this.accessToken   = options.accessToken;
     this.oAuthResponseType = options.oAuthResponseType || 'token';
+    this.request = options.request || this.request;
   }
 
   oauthUrl(){
@@ -19,16 +20,31 @@ export default class Putio {
     })
   }
 
+  request(){
+    throw new Error('you must define putio.request')
+  }
+
   get(url, query) {
     query = query || {};
-    console.log('GET', url, query);
-    query.oauth_token = this.token;
+    query.oauth_token = this.accessToken;
     url = URI(url).query(query).toString();
-    return request.get(url).then(JSON.parse);
+    console.info('Put.io GET', url+'');
+    return this.request({
+      method: 'GET',
+      url: url,
+      responseType: 'json',
+      crossDomain: true,
+      withCredentials: false,
+      headers: {
+        'Accept': 'application/json',
+      }
+    }).map( response => response.response )
   }
 
   accountInfo(){
-    return this.get(apiURI('/v2/account/info'));
+    return this.get(apiURI('/v2/account/info')).map(response => {
+      return response.info
+    })
   }
 
   addTransfer(magnetLink){
