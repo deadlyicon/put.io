@@ -1,9 +1,7 @@
-'use strict';
-
 const URI = require('urijs');
 const request = require('request-promise');
 
-class Putio {
+export default class Putio {
   constructor(token) {
     this.setToken(token);
   }
@@ -37,8 +35,6 @@ class Putio {
     });
   }
 }
-
-module.exports = Putio;
 
 const uri = (endpoint, path, query) => {
   return URI(endpoint).query(query||{}).path(path||'/').toString();
