@@ -38,7 +38,7 @@ export default class Putio {
       headers: {
         'Accept': 'application/json',
       }
-    }).map( response => response.response )
+    }).map(request => request.body)
   }
 
   accountInfo(){
