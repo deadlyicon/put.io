@@ -12,6 +12,7 @@
   },
   "author": "Jared Grippe",
   "license": "ISC",
+  "repository": "git@github.com:deadlyicon/put.io.git",
   "dependencies": {
     "minimist": "^1.2.0",
     "prompt": "^1.0.0",
