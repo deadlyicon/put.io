@@ -3,12 +3,15 @@
 'use strict'
 
 let fs = require('fs');
-let Putio = require('../index.js');
+let Putio = require('../dist/index.js');
 let minimist = require('minimist');
 let prompt = require('prompt');
 
 let usage = () => {
   console.log('put.io command [options]');
+  console.log('  options:');
+  console.log('   info');
+  console.log('   transfers');
 };
 
 let getToken = (callback) => {
