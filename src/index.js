@@ -9,7 +9,7 @@ export default class Putio {
     this.redirectURI   = options.redirectURI;
     this.accessToken   = options.accessToken;
     this.oAuthResponseType = options.oAuthResponseType || 'token';
-    this.request = options.request || this.request;
+    this._request = options.request || this.request;
   }
 
   oauthUrl(){
@@ -20,18 +20,22 @@ export default class Putio {
     })
   }
 
-  request(){
+  _request(){
     throw new Error('you must define putio.request')
   }
 
-  get(url, query) {
-    query = query || {};
-    query.oauth_token = this.accessToken;
-    url = URI(url).query(query).toString();
-    console.info('Put.io GET', url+'');
-    return this.request({
-      method: 'GET',
+  request(method, url, body){
+  // get(url, query) {
+    // query.oauth_token = this.accessToken;
+    url = URI(url)
+    url.addQuery({oauth_token: this.accessToken})
+    url = url.toString();
+
+    console.info('Put.io '+method+' '+url);
+    return this._request({
+      method: method,
       url: url,
+      body: body,
       responseType: 'json',
       crossDomain: true,
       withCredentials: false,
@@ -41,6 +45,14 @@ export default class Putio {
     }).map(request => request.body)
   }
 
+  get(url, query) {
+    return this.request('GET', url, query)
+  }
+
+  post(url, query) {
+    return this.request('POST', url, query)
+  }
+
   accountInfo(){
     return this.get(apiURI('/v2/account/info')).map(response => {
       return response.info
@@ -48,7 +60,7 @@ export default class Putio {
   }
 
   addTransfer(magnetLink){
-    return this.post(apiURI('/v2/transfers/add'), {url: magnetLink}).then(function(response){
+    return this.post(apiURI('/v2/transfers/add'), {url: magnetLink}).map(function(response){
       return response.transfer;
     });
   }
@@ -69,7 +81,7 @@ const baseURI = (path, query) => {
   return uri(ENDPOINT, path, query);
 };
 
-const API_ENDPOINT = 'https://api.put.io/v2';
+const API_ENDPOINT = 'https://api.put.io';
 const apiURI = (path, query) => {
   return uri(API_ENDPOINT, path, query);
 };
