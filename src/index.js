@@ -10,6 +10,7 @@ export default class Putio {
     this.accessToken   = options.accessToken;
     this.oAuthResponseType = options.oAuthResponseType || 'token';
     this._request = options.request || this.request;
+    this.amendFile = amendFile.bind(this)
   }
 
   oauthUrl(){
@@ -90,13 +91,13 @@ export default class Putio {
   // files
 
   getFile(fileId){
-    return this.get(apiURI(`/v2/files/${fileId}`)).pluck('file').map(amendFile)
+    return this.get(apiURI(`/v2/files/${fileId}`)).pluck('file').map(this.amendFile)
   }
 
   getDirectoryContents(fileId){
     return this.get(apiURI('/v2/files/list', {parent_id: fileId})).map( ({parent, files}) => {
       parent.fileIds = files.map(file => file.id);
-      [parent].concat(files).forEach(amendFile)
+      [parent].concat(files).forEach(this.amendFile)
       return {parent, files}
     })
   }
@@ -117,7 +118,7 @@ const apiURI = (path, query) => {
 };
 
 const IS_VIDEO_REGEXP = /\.(mkv|mp4|avi)$/
-const amendFile = (file) => {
+const amendFile = function(file){
   file.loadedAt = Date.now()
 
   if (file.id == 0) file.name = 'All Files'
@@ -129,14 +130,14 @@ const amendFile = (file) => {
   }
 
   file.putioUrl = baseURI(`/file/${file.id}`)
-  file.downloadUrl = apiURI(`/v2/files/${file.id}/download`)
+  file.downloadUrl = apiURI(`/v2/files/${file.id}/download`, {oauth_token: this.accessToken})
 
   file.isVideo = IS_VIDEO_REGEXP.test(file.name)
   if (file.isVideo){
-    file.mp4StreamUrl  = apiURI(`/v2/files/${file.id}/mp4/stream`)
-    file.streamUrl     = apiURI(`/v2/files/${file.id}/stream`)
-    file.playlistUrl   = apiURI(`/v2/files/${file.id}/xspf`)
-    file.chromecastUrl = baseURI(`/file/${file.id}/chromecast`)
+    file.mp4StreamUrl  = apiURI(`/v2/files/${file.id}/mp4/stream`, {oauth_token: this.accessToken})
+    file.streamUrl     = apiURI(`/v2/files/${file.id}/stream`, {oauth_token: this.accessToken})
+    file.playlistUrl   = apiURI(`/v2/files/${file.id}/xspf`, {oauth_token: this.accessToken})
+    file.chromecastUrl = baseURI(`/file/${file.id}/chromecast`, {oauth_token: this.accessToken})
   }
 
   return file
