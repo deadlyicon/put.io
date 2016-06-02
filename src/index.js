@@ -31,7 +31,6 @@ export default class Putio {
     url.addQuery({oauth_token: this.accessToken})
     url = url.toString();
 
-    console.info('Put.io '+method+' '+url);
     return this._request({
       method: method,
       url: url,
@@ -42,7 +41,14 @@ export default class Putio {
       headers: {
         'Accept': 'application/json',
       }
-    }).map(request => request.body)
+    }).map(response => {
+      const body = response.body
+      if (body.status === "OK") return body
+      console.warn('putio request error', body)
+      const error = new Error('Putio request failed')
+      error.response = response
+      throw error
+    })
   }
 
   get(url, query) {
@@ -53,22 +59,46 @@ export default class Putio {
     return this.request('POST', url, query)
   }
 
-  accountInfo(){
-    return this.get(apiURI('/v2/account/info')).map(response => {
-      return response.info
-    })
+  // account info
+
+  getAccountInfo(){
+    return this.get(apiURI('/v2/account/info')).pluck('info')
+  }
+
+  // transfers
+
+  getTransfer(){
+    debugger
+  }
+
+  getTransfers(){
+    return this.get(apiURI('/v2/transfers/list')).pluck('transfers')
   }
 
   addTransfer(magnetLink){
-    return this.post(apiURI('/v2/transfers/add'), {url: magnetLink}).map(function(response){
-      return response.transfer;
+    return this.post(apiURI('/v2/transfers/add'), {url: magnetLink}).pluck('transfer')
+  }
+
+  deleteTransfer(id){
+    return this.post(apiURI('/v2/transfers/cancel'), {transfer_ids: id}).map(function(response){
+      debugger
+      return response
+      // return response.transfer;
     });
   }
 
-  transfers(){
-    return this.get(apiURI('/v2/transfers/list')).map( response => {
-      return response.transfers;
-    });
+  // files
+
+  getFile(fileId){
+    return this.get(apiURI(`/v2/files/${fileId}`)).pluck('file').map(amendFile)
+  }
+
+  getDirectoryContents(fileId){
+    return this.get(apiURI('/v2/files/list', {parent_id: fileId})).map( ({parent, files}) => {
+      parent.fileIds = files.map(file => file.id);
+      [parent].concat(files).forEach(amendFile)
+      return {parent, files}
+    })
   }
 }
 
@@ -86,3 +116,28 @@ const apiURI = (path, query) => {
   return uri(API_ENDPOINT, path, query);
 };
 
+const IS_VIDEO_REGEXP = /\.(mkv|mp4|avi)$/
+const amendFile = (file) => {
+  file.loadedAt = Date.now()
+
+  if (file.id == 0) file.name = 'All Files'
+
+  file.isDirectory = "application/x-directory" == file.content_type
+
+  if (file.isDirectory) {
+    file.directoryContentsLoaded = !!file.fileIds
+  }
+
+  file.putioUrl = baseURI(`/file/${file.id}`)
+  file.downloadUrl = apiURI(`/v2/files/${file.id}/download`)
+
+  file.isVideo = IS_VIDEO_REGEXP.test(file.name)
+  if (file.isVideo){
+    file.mp4StreamUrl  = apiURI(`/v2/files/${file.id}/mp4/stream`)
+    file.streamUrl     = apiURI(`/v2/files/${file.id}/stream`)
+    file.playlistUrl   = apiURI(`/v2/files/${file.id}/xspf`)
+    file.chromecastUrl = baseURI(`/file/${file.id}/chromecast`)
+  }
+
+  return file
+}
