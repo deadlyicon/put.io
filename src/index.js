@@ -48,6 +48,7 @@ export default class Putio {
       console.warn('putio request error', body)
       const error = new Error('Putio request failed')
       error.response = response
+      error.request = response.req
       throw error
     })
   }
