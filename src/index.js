@@ -122,9 +122,10 @@ const IS_VIDEO_REGEXP = /\.(mkv|mp4|avi)$/
 const amendFile = function(file){
   file.loadedAt = Date.now()
 
-  if (file.id == 0) file.name = 'All Files'
-
   file.isDirectory = "application/x-directory" == file.content_type
+  file.isVideo = file.content_type.match(/^video\//i) || file.name.match(IS_VIDEO_REGEXP)
+  file.isImage = file.content_type.match(/^image\//i)
+  file.isText  = file.content_type.match(/^text\//i)
 
   file.putioUrl = baseURI(`/file/${file.id}`)
 
@@ -134,7 +135,6 @@ const amendFile = function(file){
     file.downloadUrl = apiURI(`/v2/files/${file.id}/download`, {oauth_token: this.accessToken})
   }
 
-  file.isVideo = IS_VIDEO_REGEXP.test(file.name)
   if (file.isVideo){
     file.mp4StreamUrl  = apiURI(`/v2/files/${file.id}/mp4/stream`, {oauth_token: this.accessToken})
     file.streamUrl     = apiURI(`/v2/files/${file.id}/stream`, {oauth_token: this.accessToken})
