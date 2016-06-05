@@ -126,12 +126,13 @@ const amendFile = function(file){
 
   file.isDirectory = "application/x-directory" == file.content_type
 
+  file.putioUrl = baseURI(`/file/${file.id}`)
+
   if (file.isDirectory) {
     file.directoryContentsLoaded = !!file.fileIds
+  }else{
+    file.downloadUrl = apiURI(`/v2/files/${file.id}/download`, {oauth_token: this.accessToken})
   }
-
-  file.putioUrl = baseURI(`/file/${file.id}`)
-  file.downloadUrl = apiURI(`/v2/files/${file.id}/download`, {oauth_token: this.accessToken})
 
   file.isVideo = IS_VIDEO_REGEXP.test(file.name)
   if (file.isVideo){
