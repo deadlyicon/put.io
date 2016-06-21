@@ -118,12 +118,12 @@ const apiURI = (path, query) => {
   return uri(API_ENDPOINT, path, query);
 };
 
-const IS_VIDEO_REGEXP = /\.(mkv|mp4|avi)$/
+const IS_VIDEO_REGEXP = /\.(mkv|mp4|avi|m4v|mov|qt|flv|wmv)$/
 const amendFile = function(file){
   file.loadedAt = Date.now()
 
   file.isDirectory = "application/x-directory" == file.content_type
-  file.isVideo = file.content_type.match(/^video\//i) || file.name.match(IS_VIDEO_REGEXP)
+  file.isVideo = file.file_type === "VIDEO" || file.content_type.match(/^video\//i) || file.name.match(IS_VIDEO_REGEXP)
   file.isImage = file.content_type.match(/^image\//i)
   file.isText  = file.content_type.match(/^text\//i)
 
