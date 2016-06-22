@@ -118,7 +118,7 @@ const apiURI = (path, query) => {
   return uri(API_ENDPOINT, path, query);
 };
 
-const IS_VIDEO_REGEXP = /\.(mkv|mp4|avi|m4v|mov|qt|flv|wmv)$/
+const IS_VIDEO_REGEXP = /\.(mkv|mp4|avi|m4v|mov|qt|flv|swf|wmv|asf)$/
 const amendFile = function(file){
   file.loadedAt = Date.now()
 
