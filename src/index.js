@@ -81,12 +81,9 @@ export default class Putio {
     return this.post(apiURI('/v2/transfers/add'), {url: magnetLink}).pluck('transfer')
   }
 
-  deleteTransfer(id){
-    return this.post(apiURI('/v2/transfers/cancel'), {transfer_ids: id}).map(function(response){
-      debugger
-      return response
-      // return response.transfer;
-    });
+  deleteTransfers(ids){
+    ids = Array.isArray(ids) ? ids.join(',') : ids
+    return this.post(apiURI('/v2/transfers/cancel'), {transfer_ids: ids})
   }
 
   // files
