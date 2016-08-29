@@ -99,6 +99,11 @@ export default class Putio {
       return {parent, files}
     })
   }
+
+  deleteFiles(fileIids){
+    fileIids = Array.isArray(fileIids) ? fileIids.join(',') : fileIids
+    return this.post(apiURI('/v2/files/delete'), {file_ids: fileIids})
+  }
 }
 
 const uri = (endpoint, path, query) => {
